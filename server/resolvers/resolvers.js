@@ -3,13 +3,9 @@ import { getCompany } from "../db/companies.js";
 
 export const resolvers = {
   Query: {
-    job: async (_root, { id }) => {
-      console.log(id);
-      const job = await getJob(id);
-      console.log(job);
-      return job;
-    },
+    job: async (_root, { id }) => await getJob(id),
     jobs: () => getJobs(),
+    company: (_root, { id }) => getCompany(id),
   },
   Job: {
     date: (job) => toIsoDate(job.createdAt),

@@ -23,7 +23,7 @@ export async function getJobs() {
 export async function getJob(id) {
   const query = gql`
     query JobById($id: ID!) {
-      jobs(id: $id) {
+      job(id: $id) {
         id
         title
         date
@@ -38,4 +38,17 @@ export async function getJob(id) {
 
   const { job } = await client.request(query, { id });
   return job;
+}
+export async function getCompany(id) {
+  const query = gql`
+    query CompanyById($id: ID!) {
+      company(id: $id) {
+        description
+        name
+      }
+    }
+  `;
+
+  const { company } = await client.request(query, { id });
+  return company;
 }
