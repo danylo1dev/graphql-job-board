@@ -1,14 +1,14 @@
+import { getCompany } from "../db/companies.js";
+import { notFound, unauthorized } from "./graphqlErrors.js";
 import {
-  getJobs,
-  getJob,
-  getJobsByCompanyId,
   createJob,
   deleteJob,
+  getJob,
+  getJobs,
+  getJobsByCompanyId,
   updateJob,
 } from "../db/jobs.js";
-import { getCompany } from "../db/companies.js";
-import { GraphQLError } from "graphql";
-
+//I think it is unnecessary to create a service because the logic is simple, I am also not sure that it makes sense to transfer errors there
 export const resolvers = {
   Query: {
     job: async (_root, { id }) => {
@@ -18,7 +18,7 @@ export const resolvers = {
       }
       return job;
     },
-    jobs: () => getJobs(),
+    jobs: (_root, { limit, offset }) => getJobs({ limit, offset }),
     company: async (_root, { id }) => {
       const company = await getCompany(id);
       if (!company) {
@@ -66,14 +66,4 @@ export const resolvers = {
 
 function toIsoDate(value) {
   return value.slice(0, "yyyy-mm-dd".length);
-}
-function notFound(message) {
-  return new GraphQLError(message, {
-    extensions: { code: "NOT_FOUND" },
-  });
-}
-function unauthorized(message) {
-  return new GraphQLError(message, {
-    extensions: { code: "UNAUTHARIZED" },
-  });
 }

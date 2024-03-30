@@ -1,81 +1,81 @@
-import { getAccessToken } from "../auth";
-import {
-  ApolloClient,
-  ApolloLink,
-  InMemoryCache,
-  createHttpLink,
-  gql,
-  concat,
-} from "@apollo/client";
+import { ApolloClient, ApolloLink, concat, createHttpLink, gql, InMemoryCache } from '@apollo/client';
+import { getAccessToken } from '../auth';
 
-const httpLink = createHttpLink({ uri: "http://localhost:9000/graphql" });
+const httpLink = createHttpLink({ uri: 'http://localhost:9000/graphql' });
+
 const authLink = new ApolloLink((operation, forward) => {
-  const accesToken = getAccessToken();
-  if (accesToken) {
+  const accessToken = getAccessToken();
+  if (accessToken) {
     operation.setContext({
-      headers: {
-        Authorization: `Bearer ${accesToken}`,
-      },
+      headers: { 'Authorization': `Bearer ${accessToken}` },
     });
-    return;
   }
   return forward(operation);
 });
+
 export const apolloClient = new ApolloClient({
   link: concat(authLink, httpLink),
   cache: new InMemoryCache(),
 });
+
 const jobDetailFragment = gql`
-  fragment JobDetails on Job {
+  fragment JobDetail on Job {
     id
     date
     title
-    description
     company {
       id
       name
     }
+    description
   }
 `;
+
+export const companyByIdQuery = gql`
+  query CompanyById($id: ID!) {
+    company(id: $id) {
+      id
+      name
+      description
+      jobs {
+        id
+        date
+        title
+      }
+    }
+  }
+`;
+
 export const jobByIdQuery = gql`
   query JobById($id: ID!) {
     job(id: $id) {
-      ...JobDetails
+      ...JobDetail
     }
   }
   ${jobDetailFragment}
 `;
-export const companyByIdQuery = gql`
-  query CompanyById($id: ID!) {
-    company(id: $id) {
-      description
-      name
-      jobs {
-        id
-        title
-        description
-        date
-      }
-    }
-  }
-`;
+
 export const jobsQuery = gql`
-  query {
-    jobs {
-      id
-      title
-      date
-      company {
+  query Jobs($limit: Int, $offset: Int) {
+    jobs(limit: $limit, offset: $offset) {
+      items {
         id
-        name
+        date
+        title
+        company {
+          id
+          name
+        }
       }
+      totalCount
     }
   }
 `;
+
 export const createJobMutation = gql`
-  mutation Mutation($input: CreateJobInput) {
-    createJob(input: $input) {
-      ...JobDetails
+  mutation CreateJob($input: CreateJobInput!) {
+    job: createJob(input: $input) {
+      ...JobDetail
     }
   }
   ${jobDetailFragment}
