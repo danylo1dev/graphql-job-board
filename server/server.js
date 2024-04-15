@@ -4,8 +4,7 @@ import express from "express";
 import { authMiddleware, handleLogin } from "./auth.js";
 import { expressMiddleware } from "@apollo/server/express4";
 import { apollo, getContext } from "./apollo.config.js";
-
-const PORT = process.env.PORT || 9000;
+import { PORT } from "./server.config.js";
 
 const app = express();
 app.use(cors(), express.json(), authMiddleware);
